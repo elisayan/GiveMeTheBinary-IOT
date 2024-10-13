@@ -1,7 +1,6 @@
 #include "button.h"
-#include <arduino.h>
+#include <Arduino.h>
 
-bool isPressed(int pin)
-{
-    return digitalRead(pin) == HIGH;
+bool isPressed(int pin) {
+  return digitalRead(pin) == HIGH;
 }

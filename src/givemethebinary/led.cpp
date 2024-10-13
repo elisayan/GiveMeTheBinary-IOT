@@ -1,12 +1,10 @@
 #include "led.h"
-#include <arduino.h>
+#include <Arduino.h>
 
-void turnOn(int pin)
-{
-    digitalWrite(pin, HIGH);
+void turnOn(int pin) {
+  digitalWrite(pin, HIGH);
 }
 
-void turnOff(int pin)
-{
-    digitalWrite(pin, LOW);
+void turnOff(int pin) {
+  digitalWrite(pin, LOW);
 }
