@@ -4,6 +4,6 @@
 #include "Display.h"
 #include "Led.h"
 
-void start();
+void start(Display lcd, Led led);
 
 #endif

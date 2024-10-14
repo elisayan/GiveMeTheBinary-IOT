@@ -9,12 +9,6 @@
 #include "Difficulty.h"
 #include "Game.h"
 
-Display lcd;
-Button button;
-Led led;
-Difficulty difficulty;
-Game game;
-
 const int ledPins[] = { 13, A1, 6, 5 };
 const int buttonPins[] = { A3, 2, 3, 4 };
 const int potPin = A0;
@@ -28,6 +22,8 @@ void setup() {
     pinMode(buttonPins[i], INPUT);
   }
   pinMode(ledRedPin, OUTPUT);
+  init();
+  showMessage("Press B1 to Start");
 }
 
 void loop() {
