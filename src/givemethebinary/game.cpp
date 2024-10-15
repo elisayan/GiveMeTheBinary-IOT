@@ -4,7 +4,7 @@
 int score;
 
 bool isAwake(int buttonPin){
-  
+  return digitalRead(buttonPin) == HIGH;
 }
 
 void start() {
