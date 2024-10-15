@@ -1,7 +1,13 @@
 #include "game.h"
 #include <Arduino.h>
 
-void start(Display lcd, Led led) {
-  lcd.showMessage("Go!");
+int score;
+
+bool isAwake(int buttonPin){
+  
+}
+
+void start() {
+  
   score = 0;
 }

@@ -1,9 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "Display.h"
-#include "Led.h"
+bool isAwake(int buttonPin);
 
-void start(Display lcd, Led led);
+void start();
 
 #endif
