@@ -3,6 +3,10 @@
 
 bool isAwake(int buttonPin);
 
-void start();
+void start(int ledPins[]);
+
+void pulseRedLED(int ledRedPin);
+
+void setDifficulty(int ledRedPin, int potPin);
 
 #endif

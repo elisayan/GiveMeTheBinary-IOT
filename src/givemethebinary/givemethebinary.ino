@@ -11,6 +11,8 @@ const int buttonPins[] = { A3, 2, 3, 4 };
 const int potPin = A0;
 const int ledRedPin = A1;
 
+const unsigned long idleTimeout = 10000;
+
 static bool gameStarted;
 
 LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
@@ -28,17 +30,29 @@ void setup() {
     pinMode(buttonPins[i], INPUT);
   }
   pinMode(ledRedPin, OUTPUT);
+
+  for (int i = 0; i < 4; i++) {
+    digitalWrite(ledPins[i], LOW);
+  }
 }
 
 void loop() {
+  int newValue = analogRead(potPin);
+
   gameStarted = false;
 
   if (!gameStarted) {
+
+    pulseRedLED(ledRedPin);
+    setDifficulty(ledRedPin, potPin);
+
     if (isAwake(buttonPins[0])) {
       gameStarted = true;
       lcd.clear();
       lcd.print("Go!");
-      start();
+      digitalWrite(ledRedPin, LOW);
+      start(ledPins);
+      Serial.println(newValue);
     }
   }
 }
