@@ -3,7 +3,7 @@
  * Author: Elisa Yan
  */
 
-#include <LiquidCrystal.h>
+//#include <LiquidCrystal.h>
 #include <EnableInterrupt.h>
 #include <avr/sleep.h>
 #include "Game.h"
@@ -25,6 +25,14 @@ static bool gameStarted;
 void wakeUp() {
 }
 
+void handleInterruptPin4() {
+  Serial.println("Interrupt on Pin 4");
+}
+
+void handleInterruptPin5() {
+  Serial.println("Interrupt on Pin 5");
+}
+
 void setup() {
   Serial.begin(9600);
 
@@ -35,6 +43,7 @@ void setup() {
 
   Serial.println("Welcome to GMB! Press B1 to Start");
 
+
   enableInterrupt(buttonPins[2], handleInterruptPin4, CHANGE);
   enableInterrupt(buttonPins[3], handleInterruptPin5, CHANGE);
 
@@ -42,19 +51,22 @@ void setup() {
     pinMode(ledPins[i], OUTPUT);
     pinMode(buttonPins[i], INPUT);
     digitalWrite(ledPins[i], LOW);
-    attachInterrupt(digitalPinToInterrupt(buttonPins[i]), wakeUp, RISING);
+    enableInterrupt(buttonPins[i], wakeUp, RISING);
+    //attachInterrupt(digitalPinToInterrupt(buttonPins[i]), wakeUp, RISING);
   }
+
+
   pinMode(ledRedPin, OUTPUT);
 
   lastButtonPressTime = millis();
 }
 
 void loop() {
-  int newValue = analogRead(potPin);
-
   gameStarted = false;
 
   if (!gameStarted) {
+    pulseRedLED(ledRedPin);
+    setDifficulty(ledRedPin, potPin);
 
     if (millis() - lastButtonPressTime >= sleepTimeout) {
       Serial.println("going in power down");
@@ -66,8 +78,6 @@ void loop() {
       Serial.println("wake up");
       lastButtonPressTime = millis();
     }
-    pulseRedLED(ledRedPin);
-    setDifficulty(ledRedPin, potPin);
 
     if (isAwake(buttonPins[0])) {
       gameStarted = true;
@@ -75,8 +85,7 @@ void loop() {
       //lcd.print("Go!");
       Serial.println("Go!");
       digitalWrite(ledRedPin, LOW);
-      start(ledPins);
-      Serial.println(newValue);
+      start(ledPins, buttonPins);
     }
   }
 }

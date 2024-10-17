@@ -3,7 +3,7 @@
 
 bool isAwake(int buttonPin);
 
-void start(int ledPins[]);
+void start(int ledPins[], int buttonPins[]);
 
 void pulseRedLED(int ledRedPin);
 

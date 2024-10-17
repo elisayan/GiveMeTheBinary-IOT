@@ -5,14 +5,22 @@ int score;
 int current;
 int difficultyLevel;
 float factor;
-int timeLimit; 
+int timeLimit;
 
 bool isAwake(int buttonPin) {
   return digitalRead(buttonPin) == HIGH;
 }
 
-void start(int ledPins[]) {
+void start(int ledPins[], int buttonPins[]) {
   score = 0;
+
+  for (int i = 0; i < 4; i++) {
+    if (digitalRead(buttonPins[i]) == HIGH) {
+      digitalWrite(ledPins[i], HIGH);
+    } else {
+      digitalWrite(ledPins[i], LOW);
+    }
+  }
 }
 
 void pulseRedLED(int ledRedPin) {
