@@ -4,6 +4,7 @@
  */
 
 #include <LiquidCrystal.h>
+#include <EnableInterrupt.h>
 #include <avr/sleep.h>
 #include "Game.h"
 
@@ -34,6 +35,9 @@ void setup() {
 
   Serial.println("Welcome to GMB! Press B1 to Start");
 
+  enableInterrupt(buttonPins[2], handleInterruptPin4, CHANGE);
+  enableInterrupt(buttonPins[3], handleInterruptPin5, CHANGE);
+
   for (int i = 0; i < 4; i++) {
     pinMode(ledPins[i], OUTPUT);
     pinMode(buttonPins[i], INPUT);
@@ -53,7 +57,7 @@ void loop() {
   if (!gameStarted) {
 
     if (millis() - lastButtonPressTime >= sleepTimeout) {
-      Serial.println("going to sleep");
+      Serial.println("going in power down");
       Serial.flush();
       set_sleep_mode(SLEEP_MODE_PWR_DOWN);
       sleep_enable();
