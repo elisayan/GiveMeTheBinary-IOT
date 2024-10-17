@@ -1,12 +1,19 @@
 #ifndef GAME_H
 #define GAME_H
 
-bool isAwake(int buttonPin);
+extern int ledPins[];
+extern int buttonPins[];
+extern int ledRedPin;
+extern int potPin;
 
-void start(int ledPins[], int buttonPins[]);
+void setUpGame();
 
-void pulseRedLED(int ledRedPin);
+bool isAwake();
 
-void setDifficulty(int ledRedPin, int potPin);
+void start();
+
+void pulseRedLED();
+
+void setDifficulty();
 
 #endif
