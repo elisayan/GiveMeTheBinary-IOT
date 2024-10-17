@@ -3,89 +3,80 @@
  * Author: Elisa Yan
  */
 
-//#include <LiquidCrystal.h>
+#define LED_1 13
+#define LED_2 12
+#define LED_3 11
+#define LED_4 10
+
+#define BUTTON_1 2
+#define BUTTON_2 3
+#define BUTTON_3 4
+#define BUTTON_4 5
+
+#define LED_S 7
+#define POT A0
+
+//#include <LiquidCrystal_I2C.h>
 #include <EnableInterrupt.h>
 #include <avr/sleep.h>
 #include "Game.h"
 
 unsigned long lastButtonPressTime = 0;
 
-const int ledPins[] = { 13, 12, 11, 10 };
-const int buttonPins[] = { 2, 3, 4, 5 };
-const int potPin = A0;
-const int ledRedPin = A1;
+int ledPins[] = { LED_1, LED_2, LED_3, LED_4 };
+int buttonPins[] = { BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4 };
+int ledRedPin = LED_S;
+int potPin = POT;
 
 const unsigned long sleepTimeout = 10000;
 
+static bool gameStarted = false;
 
-static bool gameStarted;
-
-//LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
+//LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27,20,4);
 
 void wakeUp() {
 }
 
-void handleInterruptPin4() {
-  Serial.println("Interrupt on Pin 4");
-}
-
-void handleInterruptPin5() {
-  Serial.println("Interrupt on Pin 5");
-}
-
 void setup() {
-  Serial.begin(9600);
-
-  //lcd.begin(16, 2);
-  //lcd.print("Welcome to GMB!");
-  //lcd.setCursor(0, 1);
-  //lcd.print("Press B1 to Start");
-
-  Serial.println("Welcome to GMB! Press B1 to Start");
-
-
-  enableInterrupt(buttonPins[2], handleInterruptPin4, CHANGE);
-  enableInterrupt(buttonPins[3], handleInterruptPin5, CHANGE);
+  setUpGame();
 
   for (int i = 0; i < 4; i++) {
     pinMode(ledPins[i], OUTPUT);
     pinMode(buttonPins[i], INPUT);
-    digitalWrite(ledPins[i], LOW);
     enableInterrupt(buttonPins[i], wakeUp, RISING);
-    //attachInterrupt(digitalPinToInterrupt(buttonPins[i]), wakeUp, RISING);
   }
-
-
   pinMode(ledRedPin, OUTPUT);
 
   lastButtonPressTime = millis();
 }
 
 void loop() {
-  gameStarted = false;
 
   if (!gameStarted) {
-    pulseRedLED(ledRedPin);
-    setDifficulty(ledRedPin, potPin);
+    pulseRedLED();
+    setDifficulty();
 
-    if (millis() - lastButtonPressTime >= sleepTimeout) {
-      Serial.println("going in power down");
-      Serial.flush();
-      set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-      sleep_enable();
-      sleep_mode();
-      sleep_disable();
-      Serial.println("wake up");
-      lastButtonPressTime = millis();
-    }
-
-    if (isAwake(buttonPins[0])) {
+    if (!isAwake()) {
+      if (millis() - lastButtonPressTime >= sleepTimeout) {
+        Serial.println("The game are going in power down, you can sleep it by pressing any button");
+        Serial.flush();
+        set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+        sleep_enable();
+        sleep_mode();
+        sleep_disable();
+        Serial.println("wake up");
+        lastButtonPressTime = millis();
+      }
+    } else {
       gameStarted = true;
-      //lcd.clear();
-      //lcd.print("Go!");
-      Serial.println("Go!");
+
       digitalWrite(ledRedPin, LOW);
-      start(ledPins, buttonPins);
     }
+  } else {
+    //lcd.clear();
+    //lcd.print("Go!");
+    Serial.println("Go!");
+
+    start();
   }
 }
