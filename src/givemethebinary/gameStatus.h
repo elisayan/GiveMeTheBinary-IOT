@@ -2,6 +2,7 @@
 #define GAME_STATUS_H
 
 #define LED_BUTTON_NUMBER 4
+#define BIT_NUMBER 4
 
 #define LED_1 13
 #define LED_2 12
@@ -19,7 +20,6 @@
 typedef enum GameStatus {
     WAITING,
     START_ROUND,
-    AWAIT_USER_GUESS,
     GAME_OVER, 
     SLEEP_MODE
 } GameStatus;
