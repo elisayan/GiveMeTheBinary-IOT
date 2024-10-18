@@ -1,19 +1,22 @@
 #ifndef GAME_H
 #define GAME_H
 
-extern int ledPins[];
-extern int buttonPins[];
-extern int ledRedPin;
-extern int potPin;
+#include "GameStatus.h"
 
 void setUpGame();
 
-bool isAwake();
+void startRound();
 
-void start();
-
-void pulseRedLED();
+void userGuess();
 
 void setDifficulty();
+
+void gameOver();
+
+void sleeping();
+
+GameStatus getGameStatus();
+
+void pulseRedLED();
 
 #endif
