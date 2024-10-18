@@ -13,23 +13,27 @@ void setup() {
 void loop() {
   const GameStatus gameStatus = getGameStatus();
 
+  //Serial.println(gameStatus);
+
   switch (gameStatus) {
-    case STATUS_INITIALIZING:
-      setUpGame();
+    case WAITING:
+      waiting();
       break;
-    case STATUS_START_ROUND:
+    case START_ROUND:
       startRound();
       break;
-    case STATUS_AWAIT_USER_GUESS:
+    case AWAIT_USER_GUESS:
       userGuess();
       break;
-    case STATUS_GAME_OVER:
+    case GAME_OVER:
       gameOver();
       break;
-    case STATUS_SLEEP_MODE:
+    case SLEEP_MODE:
       sleeping();
       break;
     default:
       break;
   }
+
+  //delay(500);
 }

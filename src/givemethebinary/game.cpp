@@ -5,7 +5,7 @@
 #include "Game.h"
 #include "GameStatus.h"
 
-static GameStatus currentStatus = STATUS_INITIALIZING;
+GameStatus currentStatus = WAITING;
 
 //LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27,20,4);
 int ledPins[] = { LED_1, LED_2, LED_3, LED_4 };
@@ -18,8 +18,9 @@ int current;
 int difficultyLevel;
 int timeLimit;
 int previousPotValue = -1;
+int fadeAmount = 5;
+int currIntensity = 0;
 float factor;
-bool isSleeping = false;
 
 unsigned long lastButtonPressTime = 0;
 unsigned long sleepTimeout = 10000;
@@ -27,6 +28,8 @@ unsigned long sleepTimeout = 10000;
 bool ledStates[LED_BUTTON_NUMBER] = { false, false, false, false };
 
 void wakeUp() {
+  lastButtonPressTime = millis();
+  currentStatus = WAITING;
 }
 
 void setUpGame() {
@@ -47,22 +50,50 @@ void setUpGame() {
     enableInterrupt(buttonPins[i], wakeUp, RISING);
   }
   pinMode(ledRedPin, OUTPUT);
-  pulseRedLED();
 
   lastButtonPressTime = millis();
   difficultyLevel = 1;
-  setDifficulty();
+}
 
+void waiting() {
   if (millis() - lastButtonPressTime >= sleepTimeout) {
-    sleeping();
-  }
+    currentStatus = SLEEP_MODE;
+  } else {
+    analogWrite(ledRedPin, currIntensity);
+    currIntensity = currIntensity + fadeAmount;
+    if (currIntensity == 0 || currIntensity == 255) {
+      fadeAmount = -fadeAmount;
+    }
+    delay(50);
 
-  if (!isSleeping && digitalRead(buttonPins[0]) == HIGH) {
-    currentStatus = STATUS_START_ROUND;
+    readDifficulty();
+
+    if (digitalRead(buttonPins[0]) == HIGH) {
+      currentStatus = START_ROUND;
+      //todo don't let it start
+
+      for (int i = 0; i < LED_BUTTON_NUMBER; i++) {
+        disableInterrupt(buttonPins[i]);
+      }
+      //lcd.clear();
+      //lcd.print("Go!");
+      Serial.println("Go!");
+
+      //lcd.clear();
+      //lcd.setCursor(0,1);
+      //lcd.print("Difficulty level chosen: ");
+      //lcd.setCursor(0,2);
+      //lcd.print(difficultyLevel);
+      Serial.print("Difficulty level chosen: ");
+      Serial.println(difficultyLevel);
+
+      score = 0;
+      digitalWrite(ledRedPin, LOW);
+    }
   }
 }
 
-void setDifficulty() {
+void readDifficulty() {
   int potValue = analogRead(potPin);
   int newDifficultyLevel = map(potValue, 0, 1023, 1, 4);
 
@@ -72,56 +103,23 @@ void setDifficulty() {
     Serial.print(difficultyLevel);
     Serial.println(" of difficulty");
 
-    switch (difficultyLevel) {
-      case 1:
-        factor = 1.0;
-        break;
-      case 2:
-        factor = 0.8;
-        break;
-      case 3:
-        factor = 0.6;
-        break;
-      case 4:
-        factor = 0.4;
-        break;
-    }
+    factor = 1 - (difficultyLevel / 5.0);
 
+    Serial.println(factor);
     previousPotValue = potValue;
   }
 }
 
 void startRound() {
-  //lcd.clear();
-  //lcd.print("Go!");
-  Serial.println("Go!");
-
-  //lcd.clear();
-  //lcd.setCursor(0,1);
-  //lcd.print("Difficulty level chosen: ");
-  //lcd.setCursor(0,2);
-  //lcd.print(difficultyLevel);
-
-  Serial.print("Difficulty level chosen: ");
-  Serial.println(difficultyLevel);
-
-  score = 0;
-  digitalWrite(ledRedPin, LOW);
-
   for (int i = 0; i < LED_BUTTON_NUMBER; i++) {
     if (digitalRead(buttonPins[i]) == HIGH) {
-      delay(50);
-      while (digitalRead(buttonPins[i]) == HIGH)
-        ;
-
-      ledStates[i] = !ledStates[i];
-
-      if (ledStates[i]) {
+      if (digitalRead(ledPins[i]) == LOW) {
         digitalWrite(ledPins[i], HIGH);
       } else {
         digitalWrite(ledPins[i], LOW);
       }
     }
+    delay(50);
   }
 }
 
@@ -139,11 +137,9 @@ void sleeping() {
 
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sleep_enable();
-  sleep_mode();  
-  isSleeping = true;
+  sleep_mode();
 
-  sleep_disable();  
-  isSleeping = false;
+  sleep_disable();
   Serial.println("The game has woken up from sleep mode.");
   //lastButtonPressTime = millis();
   //}
@@ -151,9 +147,4 @@ void sleeping() {
 
 GameStatus getGameStatus() {
   return currentStatus;
-}
-
-void pulseRedLED() {
-  int brightness = (millis() % 2000) / 8;
-  analogWrite(ledRedPin, brightness);
 }

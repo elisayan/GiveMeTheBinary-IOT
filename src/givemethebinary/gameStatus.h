@@ -13,15 +13,15 @@
 #define BUTTON_3 4
 #define BUTTON_4 5
 
-#define LED_S 7
+#define LED_S 6
 #define POT A0
 
 typedef enum GameStatus {
-    STATUS_INITIALIZING,
-    STATUS_START_ROUND,
-    STATUS_AWAIT_USER_GUESS,
-    STATUS_GAME_OVER, 
-    STATUS_SLEEP_MODE
+    WAITING,
+    START_ROUND,
+    AWAIT_USER_GUESS,
+    GAME_OVER, 
+    SLEEP_MODE
 } GameStatus;
 
 #endif

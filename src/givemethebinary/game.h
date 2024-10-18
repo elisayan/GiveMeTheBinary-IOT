@@ -5,11 +5,13 @@
 
 void setUpGame();
 
+void waiting();
+
 void startRound();
 
 void userGuess();
 
-void setDifficulty();
+void readDifficulty();
 
 void gameOver();
 
