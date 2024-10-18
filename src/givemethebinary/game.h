@@ -3,13 +3,15 @@
 
 #include "GameStatus.h"
 
+void initialize();
+
+void offLed();
+
 void setUpGame();
 
 void waiting();
 
 void startRound();
-
-void userGuess();
 
 void readDifficulty();
 
@@ -20,5 +22,9 @@ void sleeping();
 GameStatus getGameStatus();
 
 void pulseRedLED();
+
+bool checkAnswer();
+
+bool timeAnswerOut();
 
 #endif
