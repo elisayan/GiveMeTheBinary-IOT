@@ -58,7 +58,8 @@ void loop() {
 
     if (!isAwake()) {
       if (millis() - lastButtonPressTime >= sleepTimeout) {
-        Serial.println("The game are going in power down, you can sleep it by pressing any button");
+        Serial.println("The game are going in power down in 1s, you can sleep it by pressing any button");
+        delay(1000)
         Serial.flush();
         set_sleep_mode(SLEEP_MODE_PWR_DOWN);
         sleep_enable();
