@@ -7,6 +7,7 @@
 #include "GameStatus.h"
 
 void setup() {
+  initialize();
   setUpGame();
 }
 
@@ -21,9 +22,6 @@ void loop() {
       break;
     case START_ROUND:
       startRound();
-      break;
-    case AWAIT_USER_GUESS:
-      userGuess();
       break;
     case GAME_OVER:
       gameOver();
