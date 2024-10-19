@@ -175,6 +175,7 @@ void startRound() {
       //lcd.print(score);
       Serial.print("GOOD! Score: ");
       Serial.println(score);
+      reduceTimeFactor();
       newRound();
     } else {
       Serial.println("Time's up! Moving to game over.");
@@ -225,4 +226,12 @@ void sleeping() {
 
 GameStatus getGameStatus() {
   return currentStatus;
+}
+
+void reduceTimeFactor() {
+  factor *= 0.9;
+
+  if (factor < 0.2) {
+    factor = 0.2;
+  }
 }

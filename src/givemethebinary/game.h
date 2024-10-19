@@ -27,4 +27,6 @@ bool checkAnswer();
 
 bool timeAnswerOut();
 
+void reduceTimeFactor();
+
 #endif
