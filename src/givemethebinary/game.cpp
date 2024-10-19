@@ -64,8 +64,9 @@ void newRound() {
   }
   binaryNumber[i] = 0;
   for (int i = 0; i < BIT_NUMBER; i++) {
-    Serial.println(binaryNumber[i]);
+    Serial.print(binaryNumber[i]);
   }
+  Serial.println();
   generateNumberTime = millis();
 }
 
@@ -166,23 +167,30 @@ void startRound() {
   }
 
   if (checkAnswer()) {
-    if (!timeAnswerOut()) {
-      score++;
-      //lcd.clear();
-      //lcd.setCursor(0,1);
-      //lcd.print("GOOD! Score: ");
-      //lcd.setCursor(0,2);
-      //lcd.print(score);
-      Serial.print("GOOD! Score: ");
-      Serial.println(score);
-      reduceTimeFactor();
-      newRound();
-    } else {
-      Serial.println("Time's up! Moving to game over.");
-      currentStatus = GAME_OVER;
-    }
-  } else if (timeAnswerOut()) {
+    //if (!timeAnswerOut()) {
+    score++;
+    //lcd.clear();
+    //lcd.setCursor(0,1);
+    //lcd.print("GOOD! Score: ");
+    //lcd.setCursor(0,2);
+    //lcd.print(score);
+    Serial.print("GOOD! Score: ");
+    Serial.println(score);
+    reduceTimeFactor();
+    newRound();
+    // } else {
+    //   Serial.println("Time's up! Moving to game over.");
+    //   currentStatus = GAME_OVER;
+    // }
+  }
+
+  if (timeAnswerOut()) {
     Serial.println("Wrong answer or time's up!");
+    Serial.print("The correct answer is: ");
+    for (int i = 0; i < BIT_NUMBER; i++) {
+      Serial.print(binaryNumber[i]);
+    }
+    Serial.println();
     currentStatus = GAME_OVER;
   }
 
@@ -196,6 +204,8 @@ bool timeAnswerOut() {
 bool checkAnswer() {
   for (int i = 0; i < BIT_NUMBER; i++) {
     if (ledPressed[i] != binaryNumber[i]) {
+      Serial.print("false bit is ");
+      Serial.println(i);
       return false;
     }
   }
