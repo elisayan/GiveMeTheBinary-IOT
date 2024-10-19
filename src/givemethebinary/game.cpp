@@ -25,10 +25,10 @@ int bitNumber = BIT_NUMBER;
 float factor;
 int binaryNumber[BIT_NUMBER + 1];
 
-unsigned long lastButtonPressTime = 0;
-unsigned long generateNumberTime = 0;
-unsigned long timeout = 10000;
-unsigned long timeAnswer = 15000;
+unsigned long lastButtonPressTime = 0.0;
+unsigned long generateNumberTime = 0.0;
+unsigned long timeout = 10000.0;
+unsigned long timeAnswer = 15000.0;
 
 bool ledStates[LED_BUTTON_NUMBER] = { false, false, false, false };
 int ledPressed[LED_BUTTON_NUMBER] = { 0, 0, 0, 0 };
@@ -59,12 +59,14 @@ void newRound() {
   Serial.println(number);
 
   uint8_t i = 0;
-  while (bitNumber--)
+  while (bitNumber--) {
     binaryNumber[i++] = bitRead(number, bitNumber) + 0;
+  }
   binaryNumber[i] = 0;
   for (int i = 0; i < BIT_NUMBER; i++) {
     Serial.println(binaryNumber[i]);
   }
+  generateNumberTime = millis();
 }
 
 void offLed() {
@@ -140,7 +142,7 @@ void readDifficulty() {
     difficultyLevel = newDifficultyLevel;
     Serial.print("You are choosing ");
     Serial.print(difficultyLevel);
-    Serial.println(" of difficulty");
+    Serial.println(" level of difficulty");
 
     factor = 1 - (difficultyLevel / 5.0);
 
@@ -150,8 +152,6 @@ void readDifficulty() {
 }
 
 void startRound() {
-  generateNumberTime = millis();
-
   for (int i = 0; i < LED_BUTTON_NUMBER; i++) {
     if (digitalRead(buttonPins[i]) == HIGH) {
       if (digitalRead(ledPins[i]) == LOW) {
@@ -165,18 +165,26 @@ void startRound() {
     delay(50);
   }
 
-  if (checkAnswer() && !timeAnswerOut()) {
-    score++;
-    //display on lcd
-    Serial.print("GOOD! Score: ");
-    Serial.println(score);
-    //reducing factor
-    newRound();
-  }
-
-  if (timeAnswerOut()) {
+  if (checkAnswer()) {
+    if (!timeAnswerOut()) {
+      score++;
+      //lcd.clear();
+      //lcd.setCursor(0,1);
+      //lcd.print("GOOD! Score: ");
+      //lcd.setCursor(0,2);
+      //lcd.print(score);
+      Serial.print("GOOD! Score: ");
+      Serial.println(score);
+      newRound();
+    } else {
+      Serial.println("Time's up! Moving to game over.");
+      currentStatus = GAME_OVER;
+    }
+  } else if (timeAnswerOut()) {
+    Serial.println("Wrong answer or time's up!");
     currentStatus = GAME_OVER;
   }
+
   delay(25);
 }
 
@@ -203,7 +211,6 @@ void gameOver() {
 }
 
 void sleeping() {
-  //if (millis() - lastButtonPressTime >= sleepTimeout) {
   Serial.println("The game will enter power-down mode in 1 second. Press any button to prevent sleep.");
   delay(1000);
   Serial.flush();
@@ -214,8 +221,6 @@ void sleeping() {
 
   sleep_disable();
   Serial.println("The game has woken up from sleep mode.");
-  //lastButtonPressTime = millis();
-  //}
 }
 
 GameStatus getGameStatus() {
