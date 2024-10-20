@@ -1,32 +1,32 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "GameStatus.h"
+#include "GameControl.h"
 
 void initialize();
-
-void offLed();
 
 void setUpGame();
 
 void waiting();
 
-void startRound();
-
 void readDifficulty();
+
+void startRound();
 
 void gameOver();
 
 void sleeping();
 
-GameStatus getGameStatus();
+void turnOffLEDs();
 
 void pulseRedLED();
 
-bool checkAnswer();
+bool isAnswerCorrect();
 
-bool timeAnswerOut();
+bool checkAnswerTimeout();
 
 void reduceTimeFactor();
+
+GameStatus getGameStatus();
 
 #endif

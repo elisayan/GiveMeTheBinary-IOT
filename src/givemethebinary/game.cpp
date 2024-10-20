@@ -3,7 +3,7 @@
 #include <EnableInterrupt.h>
 #include <avr/sleep.h>
 #include "Game.h"
-#include "GameStatus.h"
+#include "GameControl.h"
 
 GameStatus currentStatus = WAITING;
 
@@ -22,7 +22,7 @@ int previousPotValue = -1;
 int fadeAmount = 5;
 int currIntensity = 0;
 int bitNumber = BIT_NUMBER;
-float factor;
+float factor = 1.0;
 int binaryNumber[BIT_NUMBER + 1];
 
 unsigned long lastButtonPressTime = 0.0;
@@ -31,7 +31,7 @@ unsigned long timeout = 10000.0;
 unsigned long timeAnswer = 15000.0;
 
 bool ledStates[LED_BUTTON_NUMBER] = { false, false, false, false };
-int ledPressed[LED_BUTTON_NUMBER] = { 0, 0, 0, 0 };
+int activeLEDs[LED_BUTTON_NUMBER] = { 0, 0, 0, 0 };
 
 void wakeUp() {
   lastButtonPressTime = millis();
@@ -50,11 +50,14 @@ void initialize() {
 }
 
 void newRound() {
+  turnOffLEDs();
   bitNumber = BIT_NUMBER;
-  offLed();
-
   number = random(0, 16);
 
+  //lcd.clear();
+  //lcd.setCursor(0,1);
+  //lcd.print("Number: ");
+  //lcd.print(number);
   Serial.print("Number: ");
   Serial.println(number);
 
@@ -70,12 +73,6 @@ void newRound() {
   generateNumberTime = millis();
 }
 
-void offLed() {
-  for (int i = 0; i < LED_BUTTON_NUMBER; i++) {
-    digitalWrite(ledPins[i], LOW);
-  }
-}
-
 void setUpGame() {
   //lcd.init();
   //lcd.backlight();
@@ -84,7 +81,7 @@ void setUpGame() {
   //lcd.setCursor(0, 1);
   //lcd.print("Press B1 to Start");
   Serial.println("Welcome to GMB! Press B1 to Start");
-  offLed();
+  turnOffLEDs();
 
   for (int i = 0; i < LED_BUTTON_NUMBER; i++) {
     enableInterrupt(buttonPins[i], wakeUp, RISING);
@@ -98,18 +95,12 @@ void waiting() {
   if (millis() - lastButtonPressTime >= timeout) {
     currentStatus = SLEEP_MODE;
   } else {
-    analogWrite(ledRedPin, currIntensity);
-    currIntensity = currIntensity + fadeAmount;
-    if (currIntensity == 0 || currIntensity == 255) {
-      fadeAmount = -fadeAmount;
-    }
-
+    pulseRedLED();
     readDifficulty();
     delay(150);
 
     if (digitalRead(buttonPins[0]) == HIGH) {
       currentStatus = START_ROUND;
-      //todo don't let it start
 
       for (int i = 0; i < LED_BUTTON_NUMBER; i++) {
         disableInterrupt(buttonPins[i]);
@@ -157,17 +148,22 @@ void startRound() {
     if (digitalRead(buttonPins[i]) == HIGH) {
       if (digitalRead(ledPins[i]) == LOW) {
         digitalWrite(ledPins[i], HIGH);
-        ledPressed[i] = 1;
+        activeLEDs[i] = 1;
       } else {
         digitalWrite(ledPins[i], LOW);
-        ledPressed[i] = 0;
+        activeLEDs[i] = 0;
       }
+      delay(100);
     }
-    delay(50);
   }
+  // Serial.print("AFTER: ");
+  // for (int i = 0; i < BIT_NUMBER; i++) {
+  //   Serial.print(activeLEDs[i]);
+  // }
+  // Serial.println();
 
-  if (checkAnswer()) {
-    //if (!timeAnswerOut()) {
+
+  if (isAnswerCorrect()) {
     score++;
     //lcd.clear();
     //lcd.setCursor(0,1);
@@ -176,40 +172,26 @@ void startRound() {
     //lcd.print(score);
     Serial.print("GOOD! Score: ");
     Serial.println(score);
+    Serial.println();
     reduceTimeFactor();
     newRound();
-    // } else {
-    //   Serial.println("Time's up! Moving to game over.");
-    //   currentStatus = GAME_OVER;
-    // }
   }
 
-  if (timeAnswerOut()) {
+  if (checkAnswerTimeout()) {
     Serial.println("Wrong answer or time's up!");
     Serial.print("The correct answer is: ");
     for (int i = 0; i < BIT_NUMBER; i++) {
       Serial.print(binaryNumber[i]);
     }
     Serial.println();
+    Serial.print("YOUR ANSWER: ");
+    for (int i = 0; i < BIT_NUMBER; i++) {
+      Serial.print(activeLEDs[i]);
+    }
+    Serial.println();
     currentStatus = GAME_OVER;
   }
-
-  delay(25);
-}
-
-bool timeAnswerOut() {
-  return millis() - generateNumberTime >= timeAnswer * factor;
-}
-
-bool checkAnswer() {
-  for (int i = 0; i < BIT_NUMBER; i++) {
-    if (ledPressed[i] != binaryNumber[i]) {
-      Serial.print("false bit is ");
-      Serial.println(i);
-      return false;
-    }
-  }
-  return true;
+  delay(100);
 }
 
 void gameOver() {
@@ -222,7 +204,7 @@ void gameOver() {
 }
 
 void sleeping() {
-  Serial.println("The game will enter power-down mode in 1 second. Press any button to prevent sleep.");
+  Serial.println("The game will enter power-down mode in 1 second. Press any button to awoken.");
   delay(1000);
   Serial.flush();
 
@@ -234,8 +216,32 @@ void sleeping() {
   Serial.println("The game has woken up from sleep mode.");
 }
 
-GameStatus getGameStatus() {
-  return currentStatus;
+void turnOffLEDs() {
+  for (int i = 0; i < LED_BUTTON_NUMBER; i++) {
+    digitalWrite(ledPins[i], LOW);
+    activeLEDs[i] = 0;
+  }
+}
+
+void pulseRedLED() {
+  analogWrite(ledRedPin, currIntensity);
+  currIntensity = currIntensity + fadeAmount;
+  if (currIntensity == 0 || currIntensity == 255) {
+    fadeAmount = -fadeAmount;
+  }
+}
+
+bool isAnswerCorrect() {
+  for (int i = 0; i < BIT_NUMBER; i++) {
+    if (activeLEDs[i] != binaryNumber[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool checkAnswerTimeout() {
+  return millis() - generateNumberTime >= timeAnswer * factor;
 }
 
 void reduceTimeFactor() {
@@ -244,4 +250,8 @@ void reduceTimeFactor() {
   if (factor < 0.2) {
     factor = 0.2;
   }
+}
+
+GameStatus getGameStatus() {
+  return currentStatus;
 }
