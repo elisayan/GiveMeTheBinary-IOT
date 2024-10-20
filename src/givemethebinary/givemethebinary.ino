@@ -4,7 +4,7 @@
  */
 
 #include "Game.h"
-#include "GameStatus.h"
+#include "GameControl.h"
 
 void setup() {
   initialize();
@@ -13,8 +13,6 @@ void setup() {
 
 void loop() {
   const GameStatus gameStatus = getGameStatus();
-
-  //Serial.println(gameStatus);
 
   switch (gameStatus) {
     case WAITING:
@@ -32,6 +30,4 @@ void loop() {
     default:
       break;
   }
-
-  //delay(500);
 }

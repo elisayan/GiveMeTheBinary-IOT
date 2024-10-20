@@ -1,5 +1,5 @@
-#ifndef GAME_STATUS_H
-#define GAME_STATUS_H
+#ifndef GAME_CONTROL_H
+#define GAME_CONTROL_H
 
 #define LED_BUTTON_NUMBER 4
 #define BIT_NUMBER 4
@@ -22,6 +22,6 @@ typedef enum GameStatus {
     START_ROUND,
     GAME_OVER, 
     SLEEP_MODE
-} GameStatus;
+};
 
 #endif
