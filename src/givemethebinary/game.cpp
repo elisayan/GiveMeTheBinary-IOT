@@ -22,13 +22,13 @@ int previousPotValue = -1;
 int fadeAmount = 5;
 int currIntensity = 0;
 int bitNumber = BIT_NUMBER;
-float factor = 1.0;
+float factor = 0.8;
 int binaryNumber[BIT_NUMBER + 1];
 
 unsigned long lastButtonPressTime = 0.0;
 unsigned long generateNumberTime = 0.0;
 unsigned long timeout = 10000.0;
-unsigned long timeAnswer = 15000.0;
+unsigned long answerTimeLimit = 15000.0;
 
 bool ledStates[LED_BUTTON_NUMBER] = { false, false, false, false };
 int activeLEDs[LED_BUTTON_NUMBER] = { 0, 0, 0, 0 };
@@ -71,6 +71,11 @@ void newRound() {
   }
   binaryNumber[i] = 0;
 
+  for (int i = 0; i < BIT_NUMBER; i++) {
+    Serial.print(binaryNumber[i]);
+  }
+  Serial.println();
+
   Serial.println();
   generateNumberTime = millis();
 }
@@ -84,10 +89,9 @@ void readDifficulty() {
     Serial.print("You are choosing ");
     Serial.print(difficultyLevel);
     Serial.println(" level of difficulty");
-
+    Serial.println();
     factor = 1 - (difficultyLevel / 5.0);
 
-    Serial.println(factor);
     previousPotValue = potValue;
   }
 }
@@ -102,7 +106,7 @@ bool isAnswerCorrect() {
 }
 
 bool checkAnswerTimeout() {
-  return millis() - generateNumberTime >= timeAnswer * factor;
+  return millis() - generateNumberTime >= answerTimeLimit * factor;
 }
 
 void reduceTimeFactor() {
@@ -206,16 +210,17 @@ void startRound() {
 
   if (checkAnswerTimeout()) {
     Serial.println("Wrong answer or time's up!");
-    Serial.print("The correct answer is: ");
-    for (int i = 0; i < BIT_NUMBER; i++) {
-      Serial.print(binaryNumber[i]);
-    }
-    Serial.println();
     Serial.print("YOUR ANSWER: ");
     for (int i = 0; i < BIT_NUMBER; i++) {
       Serial.print(activeLEDs[i]);
     }
     Serial.println();
+    Serial.print("The correct answer is: ");
+    for (int i = 0; i < BIT_NUMBER; i++) {
+      Serial.print(binaryNumber[i]);
+    }
+    Serial.println();
+
     currentStatus = GAME_OVER;
   }
   delay(100);
