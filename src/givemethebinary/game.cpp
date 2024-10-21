@@ -38,15 +38,19 @@ void wakeUp() {
   currentStatus = WAITING;
 }
 
-void initialize() {
-  Serial.begin(9600);
-  randomSeed(analogRead(A1));
-
+void turnOffLEDs() {
   for (int i = 0; i < LED_BUTTON_NUMBER; i++) {
-    pinMode(ledPins[i], OUTPUT);
-    pinMode(buttonPins[i], INPUT);
+    digitalWrite(ledPins[i], LOW);
+    activeLEDs[i] = 0;
   }
-  pinMode(ledRedPin, OUTPUT);
+}
+
+void pulseRedLED() {
+  analogWrite(ledRedPin, currIntensity);
+  currIntensity = currIntensity + fadeAmount;
+  if (currIntensity == 0 || currIntensity == 255) {
+    fadeAmount = -fadeAmount;
+  }
 }
 
 void newRound() {
@@ -66,11 +70,57 @@ void newRound() {
     binaryNumber[i++] = bitRead(number, bitNumber) + 0;
   }
   binaryNumber[i] = 0;
-  for (int i = 0; i < BIT_NUMBER; i++) {
-    Serial.print(binaryNumber[i]);
-  }
+
   Serial.println();
   generateNumberTime = millis();
+}
+
+void readDifficulty() {
+  int potValue = analogRead(potPin);
+  int newDifficultyLevel = map(potValue, 0, 1023, 1, 4);
+
+  if (newDifficultyLevel != difficultyLevel) {
+    difficultyLevel = newDifficultyLevel;
+    Serial.print("You are choosing ");
+    Serial.print(difficultyLevel);
+    Serial.println(" level of difficulty");
+
+    factor = 1 - (difficultyLevel / 5.0);
+
+    Serial.println(factor);
+    previousPotValue = potValue;
+  }
+}
+
+bool isAnswerCorrect() {
+  for (int i = 0; i < BIT_NUMBER; i++) {
+    if (activeLEDs[i] != binaryNumber[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool checkAnswerTimeout() {
+  return millis() - generateNumberTime >= timeAnswer * factor;
+}
+
+void reduceTimeFactor() {
+  factor *= 0.9;
+  if (factor < 0.2) {
+    factor = 0.2;
+  }
+}
+
+void initialize() {
+  Serial.begin(9600);
+  randomSeed(analogRead(A1));
+
+  for (int i = 0; i < LED_BUTTON_NUMBER; i++) {
+    pinMode(ledPins[i], OUTPUT);
+    pinMode(buttonPins[i], INPUT);
+  }
+  pinMode(ledRedPin, OUTPUT);
 }
 
 void setUpGame() {
@@ -126,23 +176,6 @@ void waiting() {
   delay(50);
 }
 
-void readDifficulty() {
-  int potValue = analogRead(potPin);
-  int newDifficultyLevel = map(potValue, 0, 1023, 1, 4);
-
-  if (newDifficultyLevel != difficultyLevel) {
-    difficultyLevel = newDifficultyLevel;
-    Serial.print("You are choosing ");
-    Serial.print(difficultyLevel);
-    Serial.println(" level of difficulty");
-
-    factor = 1 - (difficultyLevel / 5.0);
-
-    Serial.println(factor);
-    previousPotValue = potValue;
-  }
-}
-
 void startRound() {
   for (int i = 0; i < LED_BUTTON_NUMBER; i++) {
     if (digitalRead(buttonPins[i]) == HIGH) {
@@ -156,12 +189,6 @@ void startRound() {
       delay(100);
     }
   }
-  // Serial.print("AFTER: ");
-  // for (int i = 0; i < BIT_NUMBER; i++) {
-  //   Serial.print(activeLEDs[i]);
-  // }
-  // Serial.println();
-
 
   if (isAnswerCorrect()) {
     score++;
@@ -196,8 +223,14 @@ void startRound() {
 
 void gameOver() {
   digitalWrite(ledRedPin, HIGH);
+  //lcd.clear();
+  //lcd.setCursor(0,1);
+  //lcd.print("Game Over - Final Score: ");
+  //lcd.setCursor(0,2);
+  //lcd.print(score);
   Serial.print("Game Over - Final Score: ");
   Serial.println(score);
+  Serial.println();
   delay(timeout);
   setUpGame();
   currentStatus = WAITING;
@@ -214,42 +247,6 @@ void sleeping() {
 
   sleep_disable();
   Serial.println("The game has woken up from sleep mode.");
-}
-
-void turnOffLEDs() {
-  for (int i = 0; i < LED_BUTTON_NUMBER; i++) {
-    digitalWrite(ledPins[i], LOW);
-    activeLEDs[i] = 0;
-  }
-}
-
-void pulseRedLED() {
-  analogWrite(ledRedPin, currIntensity);
-  currIntensity = currIntensity + fadeAmount;
-  if (currIntensity == 0 || currIntensity == 255) {
-    fadeAmount = -fadeAmount;
-  }
-}
-
-bool isAnswerCorrect() {
-  for (int i = 0; i < BIT_NUMBER; i++) {
-    if (activeLEDs[i] != binaryNumber[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool checkAnswerTimeout() {
-  return millis() - generateNumberTime >= timeAnswer * factor;
-}
-
-void reduceTimeFactor() {
-  factor *= 0.9;
-
-  if (factor < 0.2) {
-    factor = 0.2;
-  }
 }
 
 GameStatus getGameStatus() {

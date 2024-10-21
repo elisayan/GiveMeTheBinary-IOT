@@ -9,23 +9,11 @@ void setUpGame();
 
 void waiting();
 
-void readDifficulty();
-
 void startRound();
 
 void gameOver();
 
 void sleeping();
-
-void turnOffLEDs();
-
-void pulseRedLED();
-
-bool isAnswerCorrect();
-
-bool checkAnswerTimeout();
-
-void reduceTimeFactor();
 
 GameStatus getGameStatus();
 
