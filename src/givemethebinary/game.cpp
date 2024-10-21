@@ -8,8 +8,8 @@
 GameStatus currentStatus = WAITING;
 
 //LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27,20,4);
-int ledPins[] = { LED_1, LED_2, LED_3, LED_4 };
 int buttonPins[] = { BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4 };
+int ledPins[] = { LED_1, LED_2, LED_3, LED_4 };
 int ledRedPin = LED_S;
 int potPin = POT;
 
@@ -23,15 +23,13 @@ int fadeAmount = 5;
 int currIntensity = 0;
 int bitNumber = BIT_NUMBER;
 float factor = 0.8;
-int binaryNumber[BIT_NUMBER + 1];
 
 unsigned long lastButtonPressTime = 0.0;
 unsigned long generateNumberTime = 0.0;
-unsigned long timeout = 10000.0;
-unsigned long answerTimeLimit = 15000.0;
 
 bool ledStates[LED_BUTTON_NUMBER] = { false, false, false, false };
 int activeLEDs[LED_BUTTON_NUMBER] = { 0, 0, 0, 0 };
+int binaryNumber[BIT_NUMBER + 1];
 
 void wakeUp() {
   lastButtonPressTime = millis();
@@ -106,7 +104,7 @@ bool isAnswerCorrect() {
 }
 
 bool checkAnswerTimeout() {
-  return millis() - generateNumberTime >= answerTimeLimit * factor;
+  return millis() - generateNumberTime >= ANSWER_TIME_LIMIT * factor;
 }
 
 void reduceTimeFactor() {
@@ -146,7 +144,7 @@ void setUpGame() {
 }
 
 void waiting() {
-  if (millis() - lastButtonPressTime >= timeout) {
+  if (millis() - lastButtonPressTime >= TIME_OUT) {
     currentStatus = SLEEP_MODE;
   } else {
     pulseRedLED();
@@ -236,7 +234,7 @@ void gameOver() {
   Serial.print("Game Over - Final Score: ");
   Serial.println(score);
   Serial.println();
-  delay(timeout);
+  delay(TIME_OUT);
   setUpGame();
   currentStatus = WAITING;
 }

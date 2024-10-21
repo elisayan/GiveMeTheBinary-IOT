@@ -1,6 +1,9 @@
 #ifndef GAME_CONTROL_H
 #define GAME_CONTROL_H
 
+#define TIME_OUT 10000
+#define ANSWER_TIME_LIMIT 15000
+
 #define LED_BUTTON_NUMBER 4
 #define BIT_NUMBER 4
 
