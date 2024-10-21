@@ -3,8 +3,8 @@
  * Author: Elisa Yan
  */
 
-#include "Game.h"
-#include "GameControl.h"
+#include "game.h"
+#include "gameControl.h"
 
 void setup() {
   initialize();
