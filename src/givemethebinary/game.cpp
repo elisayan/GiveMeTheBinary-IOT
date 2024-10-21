@@ -2,8 +2,8 @@
 //#include <LiquidCrystal_I2C.h>
 #include <EnableInterrupt.h>
 #include <avr/sleep.h>
-#include "Game.h"
-#include "GameControl.h"
+#include "game.h"
+#include "gameControl.h"
 
 GameStatus currentStatus = WAITING;
 
