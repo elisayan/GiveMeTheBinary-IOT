@@ -69,11 +69,6 @@ void newRound() {
   }
   binaryNumber[i] = 0;
 
-  for (int i = 0; i < BIT_NUMBER; i++) {
-    Serial.print(binaryNumber[i]);
-  }
-  Serial.println();
-
   Serial.println();
   generateNumberTime = millis();
 }
