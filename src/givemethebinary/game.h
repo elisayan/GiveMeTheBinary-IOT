@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "GameControl.h"
+#include "gameControl.h"
 
 void initialize();
 
