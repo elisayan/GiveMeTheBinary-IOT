@@ -15,13 +15,11 @@ int potPin = POT;
 
 int score;
 int number;
-int current;
 int difficultyLevel;
-int timeLimit;
-int previousPotValue = -1;
+int bitNumber;
 int fadeAmount = 5;
 int currIntensity = 0;
-int bitNumber = BIT_NUMBER;
+int previousPotValue = -1;
 float factor = 0.8;
 
 unsigned long lastButtonPressTime = 0.0;
@@ -213,7 +211,6 @@ void startRound() {
       Serial.print(binaryNumber[i]);
     }
     Serial.println();
-
     currentStatus = GAME_OVER;
   }
   delay(100);
