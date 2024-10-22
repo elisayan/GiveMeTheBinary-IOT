@@ -1,0 +1,3 @@
+# Give Me the Binary!
+
+"Give Me the Binary" is a binary number conversion game implemented on an embedded system. The player is tasked with converting decimal numbers, displayed on an LCD screen, into binary using LEDs controlled by tactile buttons. The system consists of 4 green LEDs (representing bits), 4 buttons, a red LED for errors, and a potentiometer to adjust difficulty. The game becomes progressively harder by reducing the time limit after each correct answer. If the player runs out of time or inputs the wrong binary value, the game ends, and the score is displayed. The game also includes a sleep mode if left inactive.
